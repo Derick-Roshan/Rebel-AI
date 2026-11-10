@@ -2,26 +2,7 @@
 This AI i created for my own use. It is working absolutly osm.
 
 Structure of my Project:
-
-REBEL-AI/
-│
-├── backend/
-│   ├── __init__.py
-│   ├── main.py
-│   └── memory/
-│       ├── __init__.py
-│       └── facts.py
-│
-├── frontend/
-│   └── index.html
-│
-├── data/
-│   └── .gitkeep
-│
-├── requirements.txt
-├── .gitignore
-├── README.md
-└── test_memory.py
+<img width="346" height="401" alt="Screenshot 2026-11-10 at 11 24 35 AM" src="https://github.com/user-attachments/assets/5277e862-01d8-44f5-9712-2f884cdac100" />
 
 Installation commands for users:
 
