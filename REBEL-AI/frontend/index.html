@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REBEL AI</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: -apple-system, Arial, sans-serif;
+    background: #101114;
+    color: #f5f5f5;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    padding: 20px 28px;
+    border-bottom: 1px solid #292a30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.status {
+    color: #55d69e;
+    font-size: 12px;
+}
+
+main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 30px 18px;
+}
+
+#messages {
+    max-width: 780px;
+    margin: auto;
+}
+
+.welcome {
+    text-align: center;
+    margin-top: 12vh;
+}
+
+.welcome h1 {
+    font-size: 34px;
+    letter-spacing: 3px;
+}
+
+.welcome p { color: #92939b; }
+
+.message {
+    padding: 15px 18px;
+    margin: 16px 0;
+    border-radius: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.user {
+    background: #292b34;
+    margin-left: 12%;
+}
+
+.assistant {
+    background: #191b21;
+    margin-right: 12%;
+}
+
+.input-area {
+    padding: 18px;
+    border-top: 1px solid #292a30;
+}
+
+.input-box {
+    max-width: 780px;
+    margin: auto;
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 16px;
+    background: #202127;
+    color: white;
+    border: 1px solid #383a43;
+    border-radius: 12px;
+    outline: none;
+    font-size: 15px;
+}
+
+button {
+    background: #d6b46a;
+    border: none;
+    border-radius: 12px;
+    padding: 0 23px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled { opacity: 0.5; }
+
+footer {
+    text-align: center;
+    color: #777;
+    font-size: 11px;
+    padding: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">REBEL AI</div>
+    <div class="status">● LOCAL ENGINE</div>
+</header>
+
+<main>
+    <div id="messages">
+        <div class="welcome" id="welcome">
+            <h1>REBEL AI</h1>
+            <p>Your personal intelligence. Your machine. Your rules.</p>
+            <p>How can I help you today?</p>
+        </div>
+    </div>
+</main>
+
+<div class="input-area">
+    <div class="input-box">
+        <input
+            id="message"
+            type="text"
+            placeholder="Message REBEL AI..."
+            autocomplete="off"
+        >
+        <button id="send" onclick="sendMessage()">SEND</button>
+    </div>
+</div>
+
+<footer>REBEL AI · PRIVATE LOCAL ASSISTANT</footer>
+
+<script>
+
+const container = document.getElementById("messages");
+const input = document.getElementById("message");
+const sendButton = document.getElementById("send");
+
+function addMessage(role, content) {
+    document.getElementById("welcome")?.remove();
+
+    const div = document.createElement("div");
+    div.className = "message " + role;
+    div.textContent = content;
+
+    container.appendChild(div);
+    window.scrollTo(0, document.body.scrollHeight);
+
+    return div;
+}
+
+// Load saved messages when the application opens
+async function loadHistory() {
+    try {
+        const response = await fetch("/history");
+
+        if (!response.ok) throw new Error("History unavailable");
+
+        const data = await response.json();
+
+        if (data.messages.length > 0) {
+            document.getElementById("welcome")?.remove();
+
+            data.messages.forEach(message => {
+                addMessage(
+                    message.role === "user" ? "user" : "assistant",
+                    message.content
+                );
+            });
+        }
+    } catch (error) {
+        console.error("Memory loading error:", error);
+    }
+}
+
+// Send a new message
+async function sendMessage() {
+    const message = input.value.trim();
+
+    if (!message || sendButton.disabled) return;
+
+    input.value = "";
+    sendButton.disabled = true;
+
+    addMessage("user", message);
+
+    const loading = addMessage(
+        "assistant",
+        "REBEL AI is thinking..."
+    );
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message })
+        });
+
+        if (!response.ok) {
+            throw new Error("Backend error: " + response.status);
+        }
+
+        const data = await response.json();
+        loading.textContent = data.reply;
+
+    } catch (error) {
+        loading.textContent = "Error: " + error.message;
+    }
+
+    sendButton.disabled = false;
+    input.focus();
+}
+
+input.addEventListener("keydown", event => {
+    if (event.key === "Enter") sendMessage();
+});
+
+loadHistory();
+
+
+</script>
+
+</body>
+</html>
+
+<!-- cd ~/REBEL-AI
+source .venv/bin/activate
+uvicorn backend.main:app --host 127.0.0.1 --port 8000 
+
+java script-->
+
+Developed by Roshan R - roshanrebel.in
+
+
